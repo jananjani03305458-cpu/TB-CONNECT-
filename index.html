@@ -4,21 +4,31 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>T&B Connect</title>
+
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
 <style>
-body{margin:0;background:#100d20;color:white;font-family:Arial,sans-serif;padding:20px}
-.box{max-width:430px;margin:35px auto;background:#211b38;padding:25px;border-radius:18px}
-h1{color:#39e6dc;text-align:center}
+*{box-sizing:border-box}
+body{margin:0;padding:20px;background:#100d20;color:white;font-family:Arial}
+.box{max-width:460px;margin:25px auto;background:#211b38;padding:24px;border-radius:18px}
+h1{text-align:center;color:#39e6dc}
 h2{text-align:center}
-input,select,textarea,button{box-sizing:border-box;width:100%;padding:13px;margin:9px 0;border:0;border-radius:9px;font-size:16px}
+input:not([type=checkbox]),select,textarea,button{
+width:100%;padding:13px;margin:8px 0;border:0;border-radius:9px;font-size:16px
+}
 button{background:#39e6dc;color:#111;font-weight:bold;cursor:pointer}
-.small{color:#bbb;text-align:center;font-size:13px}
+.small{text-align:center;color:#bbb}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0}
+.option{background:#342b50;padding:12px;border-radius:9px}
+.option input{width:auto;margin-right:7px}
 #app{display:none}
-#message{color:#39e6dc;text-align:center}
+#preview{width:130px;height:130px;object-fit:cover;border-radius:50%;display:none;margin:12px auto}
+#message,#profileMessage{color:#39e6dc;text-align:center}
 </style>
 </head>
+
 <body>
 <div class="box">
 <h1>T&B Connect</h1>
@@ -35,18 +45,40 @@ button{background:#39e6dc;color:#111;font-weight:bold;cursor:pointer}
 
 <div id="app">
 <h2>Create Your Profile</h2>
-<p class="small">Complete your profile to continue.</p>
+
 <input id="name" placeholder="Your full name">
 <input id="age" type="number" placeholder="Your age (18+)">
+
 <select id="gender">
 <option value="">Select gender</option>
 <option>Male</option>
 <option>Female</option>
 <option>Other</option>
 </select>
+
 <input id="city" placeholder="Your city">
-<input id="photo" type="url" placeholder="Profile picture URL (optional)">
-<textarea id="about" rows="4" placeholder="Write something about yourself"></textarea>
+
+<h3>Profile Picture</h3>
+<input id="photoFile" type="file" accept="image/*">
+<img id="preview" alt="Selected profile picture">
+<p class="small">Choose a picture from your device. Cloud saving will be added later.</p>
+
+<h3>Choose About Yourself</h3>
+<p class="small">Select as many as you like.</p>
+
+<div class="options" id="aboutOptions">
+<label class="option"><input type="checkbox" value="Friendly">Friendly</label>
+<label class="option"><input type="checkbox" value="Simple">Simple</label>
+<label class="option"><input type="checkbox" value="Caring">Caring</label>
+<label class="option"><input type="checkbox" value="Funny">Funny</label>
+<label class="option"><input type="checkbox" value="Romantic">Romantic</label>
+<label class="option"><input type="checkbox" value="Honest">Honest</label>
+<label class="option"><input type="checkbox" value="Travelling">Travelling</label>
+<label class="option"><input type="checkbox" value="Music Lover">Music Lover</label>
+<label class="option"><input type="checkbox" value="Sports Lover">Sports Lover</label>
+<label class="option"><input type="checkbox" value="Food Lover">Food Lover</label>
+</div>
+
 <button onclick="saveProfile()">Save Profile</button>
 <p id="profileMessage"></p>
 <button onclick="logout()" style="background:#aaa">Logout</button>
@@ -67,7 +99,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-function showMessage(id, text) {
+function message(id, text) {
   document.getElementById(id).textContent = text;
 }
 
@@ -76,8 +108,7 @@ function signup() {
   const password = document.getElementById("password").value;
 
   auth.createUserWithEmailAndPassword(email, password)
-    .then(() => showMessage("message", "Account created!"))
-    .catch(e => showMessage("message", e.message));
+    .catch(error => message("message", error.message));
 }
 
 function loginUser() {
@@ -85,29 +116,54 @@ function loginUser() {
   const password = document.getElementById("password").value;
 
   auth.signInWithEmailAndPassword(email, password)
-    .catch(e => showMessage("message", e.message));
+    .catch(error => message("message", error.message));
 }
+
+document.getElementById("photoFile").addEventListener("change", function() {
+  const file = this.files[0];
+  const preview = document.getElementById("preview");
+
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    message("profileMessage", "Please choose an image file.");
+    this.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    preview.src = event.target.result;
+    preview.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+});
 
 auth.onAuthStateChanged(async user => {
   document.getElementById("login").style.display = user ? "none" : "block";
   document.getElementById("app").style.display = user ? "block" : "none";
 
-  if (user) {
-    try {
-      const doc = await db.collection("users").doc(user.uid).get();
-      if (doc.exists) {
-        const p = doc.data();
-        document.getElementById("name").value = p.name || "";
-        document.getElementById("age").value = p.age || "";
-        document.getElementById("gender").value = p.gender || "";
-        document.getElementById("city").value = p.city || "";
-        document.getElementById("photo").value = p.photo || "";
-        document.getElementById("about").value = p.about || "";
-        showMessage("profileMessage", "Your profile is loaded.");
-      }
-    } catch (e) {
-      showMessage("profileMessage", e.message);
+  if (!user) return;
+
+  try {
+    const doc = await db.collection("users").doc(user.uid).get();
+
+    if (doc.exists) {
+      const p = doc.data();
+
+      document.getElementById("name").value = p.name || "";
+      document.getElementById("age").value = p.age || "";
+      document.getElementById("gender").value = p.gender || "";
+      document.getElementById("city").value = p.city || "";
+
+      document.querySelectorAll('#aboutOptions input').forEach(item => {
+        item.checked = Array.isArray(p.about) && p.about.includes(item.value);
+      });
+
+      message("profileMessage", "Your profile is loaded.");
     }
+  } catch (error) {
+    message("profileMessage", error.message);
   }
 });
 
@@ -119,23 +175,29 @@ async function saveProfile() {
   const age = Number(document.getElementById("age").value);
   const gender = document.getElementById("gender").value;
   const city = document.getElementById("city").value.trim();
-  const photo = document.getElementById("photo").value.trim();
-  const about = document.getElementById("about").value.trim();
+
+  const about = Array.from(
+    document.querySelectorAll('#aboutOptions input:checked')
+  ).map(item => item.value);
 
   if (!name || !Number.isInteger(age) || age < 18 || age > 120 || !gender || !city) {
-    showMessage("profileMessage", "Enter your name, valid age (18+), gender and city.");
+    message("profileMessage", "Enter your name, valid age (18+), gender and city.");
     return;
   }
 
   try {
     await db.collection("users").doc(user.uid).set({
-      name, age, gender, city, photo, about,
+      name: name,
+      age: age,
+      gender: gender,
+      city: city,
+      about: about,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }, {merge:true});
 
-    showMessage("profileMessage", "Profile saved successfully!");
-  } catch (e) {
-    showMessage("profileMessage", "Error: " + e.message);
+    message("profileMessage", "Profile saved successfully!");
+  } catch (error) {
+    message("profileMessage", "Error: " + error.message);
   }
 }
 
