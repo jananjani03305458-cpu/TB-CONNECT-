@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>T&B Connect</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#100d1d;color:white;font-family:Arial,sans-serif}
+header{padding:22px;text-align:center;background:#19132c;border-bottom:1px solid #393052}
+.logo{font-size:28px;font-weight:bold;color:#36e5e8}
+.logo span{color:#c36bff}
+main{max-width:480px;margin:auto;padding:22px}
+h1{font-size:30px;margin-top:35px}
+p{color:#bcb4cc;line-height:1.6}
+.card{background:#211a35;padding:22px;border-radius:18px;margin-top:22px}
+input{width:100%;padding:15px;margin:9px 0;border:1px solid #51436e;border-radius:10px;background:#151124;color:white;font-size:16px}
+button{width:100%;padding:15px;border:0;border-radius:12px;background:linear-gradient(90deg,#8c42df,#20cbd5);color:white;font-size:16px;font-weight:bold;margin-top:12px}
+button.secondary{background:#34264c}
+nav{display:flex;gap:8px;margin-top:20px}
+nav button{font-size:13px;padding:12px 5px}
+.profile{padding:18px;background:#211a35;border-radius:16px;margin-top:15px}
+.tag{display:inline-block;background:#392956;padding:7px 12px;border-radius:20px;color:#45e5e6;font-size:12px}
+.hidden{display:none}
+footer{text-align:center;color:#847b96;padding:25px;font-size:12px}
+</style>
+</head>
+<body>
+<header><div class="logo">T&B <span>Connect</span></div></header>
+<main>
+<section id="welcome">
+<h1>Find Your Connection ✨</h1>
+<p>Meet new people, make friends and discover meaningful connections.</p>
+<div class="card">
+<h2>Create Your Account</h2>
+<input id="name" placeholder="Your name">
+<input id="age" type="number" placeholder="Your age">
+<input id="email" type="email" placeholder="Email address">
+<input id="password" type="password" placeholder="Create password">
+<button onclick="signup()">Sign Up</button>
+<button class="secondary" onclick="showLogin()">Already have an account? Login</button>
+<p id="message"></p>
+</div>
+</section>
+
+<section id="login" class="hidden">
+<h1>Welcome Back</h1>
+<div class="card">
+<input id="loginEmail" type="email" placeholder="Email address">
+<input id="loginPassword" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<button class="secondary" onclick="showWelcome()">Create account</button>
+<p id="loginMessage"></p>
+</div>
+</section>
+
+<section id="home" class="hidden">
+<h1 id="hello">Welcome!</h1>
+<p>Discover people and build new connections.</p>
+<nav>
+<button onclick="tab('discover')">Discover</button>
+<button onclick="tab('matches')">Matches</button>
+<button onclick="tab('profile')">Profile</button>
+</nav>
+<div id="discover" class="card">
+<h2>Discover People 💜</h2>
+<div class="profile">
+<h3>Ali, 24</h3><span class="tag">Friendship</span>
+<p>Love travelling, music and meeting new people.</p>
+<button onclick="like('Ali')">Send Like ❤️</button>
+</div>
+<div class="profile">
+<h3>Sara, 22</h3><span class="tag">Friendship</span>
+<p>Enjoys books, photography and good conversations.</p>
+<button onclick="like('Sara')">Send Like ❤️</button>
+</div>
+</div>
+<div id="matches" class="card hidden">
+<h2>Your Matches 💕</h2>
+<p id="matchList">No matches yet. Explore profiles!</p>
+</div>
+<div id="profile" class="card hidden">
+<h2>My Profile</h2>
+<p id="myProfile"></p>
+<button class="secondary" onclick="logout()">Logout</button>
+</div>
+</section>
+</main>
+<footer>© 2026 T&B Connect · Respect • Safety • Friendship</footer>
+
+<script>
+let currentUser=null;
+let likes=[];
+function show(id){
+['welcome','login','home'].forEach(x=>document.getElementById(x).classList.add('hidden'));
+document.getElementById(id).classList.remove('hidden');
+}
+function showLogin(){show('login')}
+function showWelcome(){show('welcome')}
+function signup(){
+let n=document.getElementById('name').value.trim();
+let a=Number(document.getElementById('age').value);
+let e=document.getElementById('email').value.trim();
+let p=document.getElementById('password').value;
+if(!n||!e||!p||!a){message.textContent='Please fill in all fields.';return}
+if(a<18){message.textContent='You must be 18 or older to use T&B Connect.';return}
+currentUser={name:n,age:a,email:e,password:p};
+openHome();
+}
+function login(){
+let e=loginEmail.value.trim(),p=loginPassword.value;
+if(currentUser&&e===currentUser.email&&p===currentUser.password){openHome()}
+else{loginMessage.textContent='Demo only: create an account on this device first.'}
+}
+function openHome(){
+hello.textContent='Welcome, '+currentUser.name+'!';
+myProfile.textContent=currentUser.name+' · '+currentUser.age+' years old · '+currentUser.email;
+show('home');
+}
+function tab(id){
+['discover','matches','profile'].forEach(x=>document.getElementById(x).classList.add('hidden'));
+document.getElementById(id).classList.remove('hidden');
+}
+function like(n){
+if(!likes.includes(n))likes.push(n);
+matchList.textContent='You liked: '+likes.join(', ');
+alert('Like saved in this demo!');
+}
+function logout(){currentUser=null;show('welcome')}
+</script>
+</body>
+</html>
