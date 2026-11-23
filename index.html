@@ -1,133 +1,152 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>T&B Connect</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#100d1d;color:white;font-family:Arial,sans-serif}
-header{padding:22px;text-align:center;background:#19132c;border-bottom:1px solid #393052}
-.logo{font-size:28px;font-weight:bold;color:#36e5e8}
+header{text-align:center;padding:22px;background:#19132c}
+.logo{font-size:29px;font-weight:bold;color:#36e5e8}
 .logo span{color:#c36bff}
-main{max-width:480px;margin:auto;padding:22px}
-h1{font-size:30px;margin-top:35px}
-p{color:#bcb4cc;line-height:1.6}
+main{max-width:460px;margin:auto;padding:22px}
 .card{background:#211a35;padding:22px;border-radius:18px;margin-top:22px}
-input{width:100%;padding:15px;margin:9px 0;border:1px solid #51436e;border-radius:10px;background:#151124;color:white;font-size:16px}
-button{width:100%;padding:15px;border:0;border-radius:12px;background:linear-gradient(90deg,#8c42df,#20cbd5);color:white;font-size:16px;font-weight:bold;margin-top:12px}
-button.secondary{background:#34264c}
-nav{display:flex;gap:8px;margin-top:20px}
-nav button{font-size:13px;padding:12px 5px}
-.profile{padding:18px;background:#211a35;border-radius:16px;margin-top:15px}
-.tag{display:inline-block;background:#392956;padding:7px 12px;border-radius:20px;color:#45e5e6;font-size:12px}
+h1{font-size:30px}
+p{color:#c5bdd2;line-height:1.5}
+input{width:100%;padding:14px;margin:8px 0;border:1px solid #51436e;border-radius:10px;background:#151124;color:white;font-size:16px}
+button{width:100%;padding:14px;margin-top:12px;border:0;border-radius:10px;background:linear-gradient(90deg,#8c42df,#20cbd5);color:white;font-weight:bold;font-size:16px;cursor:pointer}
+.secondary{background:#392b50}
 .hidden{display:none}
-footer{text-align:center;color:#847b96;padding:25px;font-size:12px}
+.profile{background:#302344;padding:15px;border-radius:12px;margin-top:12px}
+#message{color:#55e5dc;overflow-wrap:anywhere}
+footer{text-align:center;color:#888;padding:25px}
 </style>
 </head>
 <body>
 <header><div class="logo">T&B <span>Connect</span></div></header>
 <main>
-<section id="welcome">
+<section id="auth">
 <h1>Find Your Connection ✨</h1>
-<p>Meet new people, make friends and discover meaningful connections.</p>
+<p>Meet people. Build friendships. Discover connections.</p>
 <div class="card">
-<h2>Create Your Account</h2>
+<h2>Create Account</h2>
 <input id="name" placeholder="Your name">
 <input id="age" type="number" placeholder="Your age">
 <input id="email" type="email" placeholder="Email address">
-<input id="password" type="password" placeholder="Create password">
+<input id="password" type="password" placeholder="Password (minimum 6 characters)">
+<label style="font-size:13px;color:#ccc">
+<input id="agree" type="checkbox" style="width:auto">
+I confirm that I am 18 or older.
+</label>
 <button onclick="signup()">Sign Up</button>
-<button class="secondary" onclick="showLogin()">Already have an account? Login</button>
+<hr style="border-color:#51436e;margin:22px 0">
+<h2>Login</h2>
+<input id="loginEmail" type="email" placeholder="Email address">
+<input id="loginPassword" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
 <p id="message"></p>
 </div>
 </section>
 
-<section id="login" class="hidden">
-<h1>Welcome Back</h1>
-<div class="card">
-<input id="loginEmail" type="email" placeholder="Email address">
-<input id="loginPassword" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
-<button class="secondary" onclick="showWelcome()">Create account</button>
-<p id="loginMessage"></p>
-</div>
-</section>
-
 <section id="home" class="hidden">
-<h1 id="hello">Welcome!</h1>
-<p>Discover people and build new connections.</p>
-<nav>
-<button onclick="tab('discover')">Discover</button>
-<button onclick="tab('matches')">Matches</button>
-<button onclick="tab('profile')">Profile</button>
-</nav>
-<div id="discover" class="card">
-<h2>Discover People 💜</h2>
+<h1 id="welcome"></h1>
+<div class="card">
+<h2>Welcome to T&B Connect 💜</h2>
+<p>Your account is connected to Firebase.</p>
 <div class="profile">
-<h3>Ali, 24</h3><span class="tag">Friendship</span>
-<p>Love travelling, music and meeting new people.</p>
-<button onclick="like('Ali')">Send Like ❤️</button>
+<h3>Discover</h3>
+<p>Meet new people and build meaningful connections.</p>
 </div>
 <div class="profile">
-<h3>Sara, 22</h3><span class="tag">Friendship</span>
-<p>Enjoys books, photography and good conversations.</p>
-<button onclick="like('Sara')">Send Like ❤️</button>
+<h3>Matches</h3>
+<p>Matching features will be added in the next stage.</p>
 </div>
-</div>
-<div id="matches" class="card hidden">
-<h2>Your Matches 💕</h2>
-<p id="matchList">No matches yet. Explore profiles!</p>
-</div>
-<div id="profile" class="card hidden">
-<h2>My Profile</h2>
-<p id="myProfile"></p>
-<button class="secondary" onclick="logout()">Logout</button>
+<button onclick="logout()">Logout</button>
 </div>
 </section>
 </main>
-<footer>© 2026 T&B Connect · Respect • Safety • Friendship</footer>
+<footer>© 2026 T&B Connect</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 
 <script>
-let currentUser=null;
-let likes=[];
-function show(id){
-['welcome','login','home'].forEach(x=>document.getElementById(x).classList.add('hidden'));
-document.getElementById(id).classList.remove('hidden');
+const firebaseConfig = {
+  apiKey: "AIzaSyDgRHZIDxKXOtP0Qm4lChk4EnLmo7yidBE",
+  authDomain: "tb-connect-38e83.firebaseapp.com",
+  projectId: "tb-connect-38e83",
+  storageBucket: "tb-connect-38e83.firebasestorage.app",
+  messagingSenderId: "917954139441",
+  appId: "1:917954139441:web:a2c7a7d4b1c2fa0c7e0c10"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+function showMessage(text){
+ document.getElementById("message").textContent=text;
 }
-function showLogin(){show('login')}
-function showWelcome(){show('welcome')}
-function signup(){
-let n=document.getElementById('name').value.trim();
-let a=Number(document.getElementById('age').value);
-let e=document.getElementById('email').value.trim();
-let p=document.getElementById('password').value;
-if(!n||!e||!p||!a){message.textContent='Please fill in all fields.';return}
-if(a<18){message.textContent='You must be 18 or older to use T&B Connect.';return}
-currentUser={name:n,age:a,email:e,password:p};
-openHome();
+
+async function signup(){
+ const name=document.getElementById("name").value.trim();
+ const age=Number(document.getElementById("age").value);
+ const email=document.getElementById("email").value.trim();
+ const password=document.getElementById("password").value;
+ const agree=document.getElementById("agree").checked;
+
+ if(!name||!email||!password||!age){
+  showMessage("Please complete all fields.");
+  return;
+ }
+ if(age<18||!agree){
+  showMessage("T&B Connect requires users to be 18 or older.");
+  return;
+ }
+ if(password.length<6){
+  showMessage("Password must contain at least 6 characters.");
+  return;
+ }
+
+ try{
+  const result=await auth.createUserWithEmailAndPassword(email,password);
+  await result.user.updateProfile({displayName:name});
+  showMessage("Account created successfully!");
+ }catch(error){
+  showMessage(error.message);
+ }
 }
-function login(){
-let e=loginEmail.value.trim(),p=loginPassword.value;
-if(currentUser&&e===currentUser.email&&p===currentUser.password){openHome()}
-else{loginMessage.textContent='Demo only: create an account on this device first.'}
+
+async function login(){
+ const email=document.getElementById("loginEmail").value.trim();
+ const password=document.getElementById("loginPassword").value;
+ if(!email||!password){
+  showMessage("Enter your email and password.");
+  return;
+ }
+ try{
+  await auth.signInWithEmailAndPassword(email,password);
+ }catch(error){
+  showMessage(error.message);
+ }
 }
-function openHome(){
-hello.textContent='Welcome, '+currentUser.name+'!';
-myProfile.textContent=currentUser.name+' · '+currentUser.age+' years old · '+currentUser.email;
-show('home');
+
+async function logout(){
+ try{await auth.signOut();}
+ catch(error){showMessage(error.message);}
 }
-function tab(id){
-['discover','matches','profile'].forEach(x=>document.getElementById(x).classList.add('hidden'));
-document.getElementById(id).classList.remove('hidden');
-}
-function like(n){
-if(!likes.includes(n))likes.push(n);
-matchList.textContent='You liked: '+likes.join(', ');
-alert('Like saved in this demo!');
-}
-function logout(){currentUser=null;show('welcome')}
+
+auth.onAuthStateChanged(user=>{
+ if(user){
+  document.getElementById("auth").classList.add("hidden");
+  document.getElementById("home").classList.remove("hidden");
+  document.getElementById("welcome").textContent=
+   "Welcome, "+(user.displayName||"Member")+"!";
+ }else{
+  document.getElementById("auth").classList.remove("hidden");
+  document.getElementById("home").classList.add("hidden");
+ }
+});
 </script>
 </body>
 </html>
