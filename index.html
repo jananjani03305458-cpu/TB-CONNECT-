@@ -1,210 +1,199 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="ur">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>T&B Connect</title>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <style>
-*{box-sizing:border-box}
-body{margin:0;padding:20px;background:#100d20;color:white;font-family:Arial}
-.box{max-width:460px;margin:25px auto;background:#211b38;padding:24px;border-radius:18px}
-h1{text-align:center;color:#39e6dc}
-h2{text-align:center}
-input:not([type=checkbox]),select,button{
-width:100%;padding:13px;margin:8px 0;border:0;border-radius:9px;font-size:16px
-}
-button{background:#39e6dc;color:#111;font-weight:bold;cursor:pointer}
-.small{text-align:center;color:#bbb}
-.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0}
-.option{background:#342b50;padding:12px;border-radius:9px}
-.option input{width:auto;margin-right:7px}
-#app{display:none}
-#preview{width:130px;height:130px;object-fit:cover;border-radius:50%;display:none;margin:12px auto}
-#message,#profileMessage{color:#39e6dc;text-align:center;overflow-wrap:anywhere}
+*{box-sizing:border-box}body{margin:0;background:#f3f5f9;color:#172033;font-family:Arial,sans-serif}
+header{background:#182b55;color:white;padding:16px;text-align:center;font-size:22px;font-weight:bold}
+main{max-width:760px;margin:18px auto;padding:0 12px}.panel{background:white;border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 12px #17203312}
+input,textarea,select,button{font:inherit;padding:11px;border:1px solid #ccd3df;border-radius:9px;width:100%;margin:5px 0}
+button{background:#244b91;color:white;border:0;font-weight:bold;cursor:pointer}.secondary{background:#e8edf6;color:#1d3157}.danger{background:#a83242}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hidden{display:none}.member{border:1px solid #e1e6ef;padding:12px;border-radius:12px;margin:9px 0}
+.member img{width:64px;height:64px;border-radius:50%;object-fit:cover;background:#e7ebf2}.memberrow{display:flex;gap:12px;align-items:center}.memberrow>div{flex:1}
+small,.muted{color:#667085}.status{padding:8px;background:#f0f4fb;border-radius:8px;margin:8px 0}
+label{display:block;margin-top:8px}h2{font-size:18px;margin:0 0 10px}.tabs{display:flex;gap:6px;flex-wrap:wrap}.tabs button{width:auto;flex:1}
+#log{white-space:pre-wrap;color:#a83242}
 </style>
 </head>
 <body>
-<div class="box">
-<h1>T&B Connect</h1>
-<p class="small">Connect • Discover • Make Friends</p>
-
-<div id="login">
-<h2>Welcome</h2>
-<input id="email" type="email" placeholder="Email address">
-<input id="password" type="password" placeholder="Password">
-<button id="signupBtn">Create Account</button>
-<button id="loginBtn">Login</button>
-<p id="message"></p>
+<header>T&B CONNECT</header>
+<main>
+<section id="auth" class="panel">
+<h2>اکاؤنٹ بنائیں یا لاگ اِن کریں</h2>
+<input id="email" type="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password (کم از کم 6 حروف)">
+<div class="grid"><button id="signup">نیا اکاؤنٹ</button><button id="login" class="secondary">لاگ اِن</button></div>
+<div id="log"></div>
+</section>
+<section id="app" class="hidden">
+<div class="panel">
+<div class="memberrow"><div><b id="welcome"></b><div class="muted" id="myemail"></div></div><button id="logout" class="secondary" style="width:auto">Logout</button></div>
+<div class="status">پرائیویٹ موڈ میں آپ کا نام، تصویر اور پروفائل دوسرے ممبرز کو نظر نہیں آئیں گے۔ دوست بننے کی درخواست قبول ہونے کے بعد پروفائل نظر آئے گا۔</div>
+<label><input id="privateMode" type="checkbox" style="width:auto"> میرا پروفائل Private رکھیں</label>
+<button id="savePrivacy">Privacy محفوظ کریں</button>
 </div>
-
-<div id="app">
-<h2>Create Your Profile</h2>
-<input id="name" placeholder="Your full name">
-<input id="age" type="number" placeholder="Your age (18+)">
-<select id="gender">
-<option value="">Select gender</option>
-<option>Male</option>
-<option>Female</option>
-<option>Other</option>
-</select>
-<input id="city" placeholder="Your city">
-
-<h3>Profile Picture</h3>
-<input id="photoFile" type="file" accept="image/*">
-<img id="preview" alt="Selected picture">
-<p class="small">Picture preview only. Cloud saving will be added later.</p>
-
-<h3>Choose About Yourself</h3>
-<p class="small">Select as many as you like.</p>
-<div class="options" id="aboutOptions">
-<label class="option"><input type="checkbox" value="Friendly">Friendly</label>
-<label class="option"><input type="checkbox" value="Simple">Simple</label>
-<label class="option"><input type="checkbox" value="Caring">Caring</label>
-<label class="option"><input type="checkbox" value="Funny">Funny</label>
-<label class="option"><input type="checkbox" value="Romantic">Romantic</label>
-<label class="option"><input type="checkbox" value="Honest">Honest</label>
-<label class="option"><input type="checkbox" value="Travelling">Travelling</label>
-<label class="option"><input type="checkbox" value="Music Lover">Music Lover</label>
-<label class="option"><input type="checkbox" value="Sports Lover">Sports Lover</label>
-<label class="option"><input type="checkbox" value="Food Lover">Food Lover</label>
+<div class="panel">
+<h2>اپنا پروفائل</h2>
+<input id="name" placeholder="نام">
+<input id="age" type="number" min="18" max="120" placeholder="عمر (صرف 18+)">
+<select id="gender"><option value="">Gender منتخب کریں</option><option>Male</option><option>Female</option><option>Other</option></select>
+<input id="city" placeholder="شہر">
+<input id="photoUrl" placeholder="تصویر کا URL (اختیاری)">
+<textarea id="about" placeholder="اپنے بارے میں"></textarea>
+<button id="saveProfile">پروفائل محفوظ کریں</button>
 </div>
-
-<button id="saveBtn" type="button">Save Profile</button>
-<p id="profileMessage"></p>
-<button id="logoutBtn" style="background:#aaa">Logout</button>
+<div class="panel">
+<div class="tabs"><button data-tab="members">Members</button><button data-tab="requests" class="secondary">Requests</button><button data-tab="chats" class="secondary">Chats</button></div>
+<div id="members"></div><div id="requests" class="hidden"></div><div id="chats" class="hidden"></div>
 </div>
-</div>
-
+<div class="panel"><h2>پیغام</h2><div id="chatTitle" class="muted">کسی ممبر کے ساتھ چیٹ کھولیں</div><div id="messages" style="max-height:220px;overflow:auto"></div><textarea id="messageText" placeholder="پیغام لکھیں"></textarea><button id="sendMessage">پیغام بھیجیں</button></div>
+</section>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
- apiKey: "AIzaSyDgRHZIDxKXOtP0Qm4lChk4EnLmo7yidBE",
- authDomain: "tb-connect-38e83.firebaseapp.com",
- projectId: "tb-connect-38e83",
- storageBucket: "tb-connect-38e83.firebasestorage.app",
- messagingSenderId: "917954139441",
- appId: "1:917954139441:web:a2c7a7d4b1c2fa0c7e0c10"
+  apiKey: "AIzaSyDgRHZIDxKXOtP0Qm4lChk4EnLmo7yidBE",
+  authDomain: "tb-connect-38e83.firebaseapp.com",
+  projectId: "tb-connect-38e83",
+  storageBucket: "tb-connect-38e83.firebasestorage.app",
+  messagingSenderId: "917954139441",
 };
-
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-function show(id, text) {
- document.getElementById(id).textContent = text;
+const auth=firebase.auth(), db=firebase.firestore();
+const $=id=>document.getElementById(id);
+let me=null, activeChat=null, messageUnsub=null;
+const say=t=>{$("log").textContent=t};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const profileFields=()=>({name:$("name").value.trim(),age:Number($("age").value),gender:$("gender").value,city:$("city").value.trim(),photoUrl:$("photoUrl").value.trim(),about:$("about").value.trim()});
+const friendId=(a,b)=>a+"_"+b;
+async function accepted(a,b){
+ const x=await db.collection("friendships").doc(friendId(a,b)).get();
+ const y= x.exists?x:await db.collection("friendships").doc(friendId(b,a)).get();
+ return y.exists;
 }
-
-document.getElementById("signupBtn").addEventListener("click", async () => {
- const email = document.getElementById("email").value.trim();
- const password = document.getElementById("password").value;
- try {
-  show("message","Creating account...");
-  await auth.createUserWithEmailAndPassword(email,password);
- } catch(e) {
-  show("message",e.message);
- }
+$("signup").onclick=async()=>{try{const c=await auth.createUserWithEmailAndPassword($("email").value,$("password").value);me=c.user;await initializeUser();}catch(e){say(e.message)}};
+$("login").onclick=async()=>{try{await auth.signInWithEmailAndPassword($("email").value,$("password").value)}catch(e){say(e.message)}};
+$("logout").onclick=()=>auth.signOut();
+auth.onAuthStateChanged(async u=>{
+ me=u;
+ $("auth").classList.toggle("hidden",!!u);$("app").classList.toggle("hidden",!u);
+ if(u){$("welcome").textContent="T&B Connect";$("myemail").textContent=u.email||"";try{await initializeUser();await loadMyProfile();await loadMembers();await loadRequests();await loadChats()}catch(e){say(e.message)}}
+ else {if(messageUnsub)messageUnsub();activeChat=null;}
 });
-
-document.getElementById("loginBtn").addEventListener("click", async () => {
- const email = document.getElementById("email").value.trim();
- const password = document.getElementById("password").value;
- try {
-  show("message","Logging in...");
-  await auth.signInWithEmailAndPassword(email,password);
- } catch(e) {
-  show("message",e.message);
- }
-});
-
-document.getElementById("photoFile").addEventListener("change", function() {
- const file = this.files[0];
- if (!file) return;
- if (!file.type.startsWith("image/")) {
-  show("profileMessage","Please choose an image file.");
-  this.value="";
+async function initializeUser(){
+ const ref=db.collection("users").doc(me.uid), s=await ref.get();
+ if(!s.exists){
+  await ref.set({privateMode:true,discoverable:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
   return;
  }
- const reader = new FileReader();
- reader.onload = e => {
-  document.getElementById("preview").src=e.target.result;
-  document.getElementById("preview").style.display="block";
- };
- reader.readAsDataURL(file);
-});
-
-auth.onAuthStateChanged(async user => {
- document.getElementById("login").style.display=user?"none":"block";
- document.getElementById("app").style.display=user?"block":"none";
- if (!user) return;
-
- try {
-  const doc=await db.collection("users").doc(user.uid).get();
-  if (doc.exists) {
-   const p=doc.data();
-   document.getElementById("name").value=p.name||"";
-   document.getElementById("age").value=p.age||"";
-   document.getElementById("gender").value=p.gender||"";
-   document.getElementById("city").value=p.city||"";
-   document.querySelectorAll("#aboutOptions input").forEach(item=>{
-    item.checked=Array.isArray(p.about)&&p.about.includes(item.value);
-   });
-   show("profileMessage","Your profile is loaded.");
+ const old=s.data()||{};
+ // One-time migration from the earlier prototype, which kept profile fields in users/{uid}.
+ if(old.name || old.age || old.photoUrl || old.about || old.city){
+  const legacy={name:old.name||"",age:Number(old.age)||18,gender:old.gender||"",city:old.city||"",photoUrl:old.photoUrl||"",about:old.about||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  await db.collection("privateProfiles").doc(me.uid).set(legacy);
+  if(old.privateMode===false) await db.collection("publicProfiles").doc(me.uid).set(legacy);
+ }
+ // Replace, rather than merge, so legacy personal fields are removed from the directory document.
+ await ref.set({privateMode:old.privateMode===false?false:true,discoverable:old.discoverable!==false,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+}
+async function loadMyProfile(){
+ const [u,p]=await Promise.all([db.collection("users").doc(me.uid).get(),db.collection("privateProfiles").doc(me.uid).get()]);
+ $("privateMode").checked=u.data()?.privateMode!==false;
+ if(p.exists){const d=p.data();$("name").value=d.name||"";$("age").value=d.age||"";$("gender").value=d.gender||"";$("city").value=d.city||"";$("photoUrl").value=d.photoUrl||"";$("about").value=d.about||"";}
+}
+$("savePrivacy").onclick=async()=>{
+ try{
+  const privateMode=$("privateMode").checked;
+  const userRef=db.collection("users").doc(me.uid), pubRef=db.collection("publicProfiles").doc(me.uid);
+  await userRef.set({privateMode,discoverable:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+  if(privateMode) await pubRef.delete(); else {
+   const p=await db.collection("privateProfiles").doc(me.uid).get();
+   if(p.exists) await pubRef.set({...p.data(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
   }
- } catch(e) {
-  show("profileMessage","Loading error: "+e.message);
+  alert("Privacy محفوظ ہو گئی");
+  await loadMembers();
+ }catch(e){alert("محفوظ نہیں ہوا: "+e.message)}
+};
+$("saveProfile").onclick=async()=>{
+ try{
+  const d=profileFields();
+  if(!d.name||!Number.isInteger(d.age)||d.age<18||d.age>120){alert("نام درج کریں اور عمر 18 سے 120 کے درمیان رکھیں۔");return;}
+  const privateMode=$("privateMode").checked;
+  await db.collection("privateProfiles").doc(me.uid).set({...d,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  await db.collection("users").doc(me.uid).set({privateMode,discoverable:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+  if(privateMode) await db.collection("publicProfiles").doc(me.uid).delete();
+  else await db.collection("publicProfiles").doc(me.uid).set({...d,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  alert("Profile محفوظ ہو گیا");await loadMembers();
+ }catch(e){alert("پروفائل محفوظ نہیں ہوا: "+e.message)}
+};
+async function loadMembers(){
+ const snap=await db.collection("users").where("discoverable","==",true).get();
+ const box=$("members");box.innerHTML="<h2>Members</h2>";
+ for(const doc of snap.docs){
+  if(doc.id===me.uid)continue;
+  const uid=doc.id, meta=doc.data(), isFriend=await accepted(me.uid,uid);
+  let d=null,privateMode=meta.privateMode!==false;
+  if(!privateMode){const p=await db.collection("publicProfiles").doc(uid).get();if(p.exists)d=p.data();}
+  else if(isFriend){const p=await db.collection("privateProfiles").doc(uid).get();if(p.exists)d=p.data();}
+  const title=d?.name||"Private Member", photo=d?.photoUrl||"";
+  const card=document.createElement("div");card.className="member";
+  card.innerHTML=`<div class="memberrow"><img src="${esc(photo||"")}" onerror="this.style.visibility='hidden'" alt=""><div><b>${esc(title)}</b><div class="muted">${d?esc([d.age,d.city].filter(Boolean).join(" • ")):"پروفائل دوست بننے کے بعد نظر آئے گا"}</div></div></div><div class="grid"><button data-act="request">Friend Request</button><button data-act="chat" class="secondary">Message</button><button data-act="call" class="secondary">Call</button></div>`;
+  card.querySelector('[data-act="request"]').onclick=()=>sendRequest(uid);
+  card.querySelector('[data-act="chat"]').onclick=()=>openChat(uid,title);
+  card.querySelector('[data-act="call"]').onclick=()=>startCall(uid);
+  box.appendChild(card);
  }
-});
-
-document.getElementById("saveBtn").addEventListener("click", async () => {
- const btn=document.getElementById("saveBtn");
- const user=auth.currentUser;
-
- if (!user) {
-  show("profileMessage","Please login first.");
-  return;
- }
-
- const name=document.getElementById("name").value.trim();
- const age=Number(document.getElementById("age").value);
- const gender=document.getElementById("gender").value;
- const city=document.getElementById("city").value.trim();
- const about=Array.from(
-  document.querySelectorAll("#aboutOptions input:checked")
- ).map(item=>item.value);
-
- if (!name || !Number.isInteger(age) || age<18 || age>120 || !gender || !city) {
-  show("profileMessage","Please enter name, valid age (18+), gender and city.");
-  return;
- }
-
- try {
-  btn.disabled=true;
-  btn.textContent="Saving...";
-  show("profileMessage","Saving your profile...");
-
-  await db.collection("users").doc(user.uid).set({
-   name:name,
-   age:age,
-   gender:gender,
-   city:city,
-   about:about,
-   updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-  },{merge:true});
-
-  show("profileMessage","Profile saved successfully!");
- } catch(e) {
-  show("profileMessage","Save failed: "+e.message);
- } finally {
-  btn.disabled=false;
-  btn.textContent="Save Profile";
- }
-});
-
-document.getElementById("logoutBtn").addEventListener("click",()=>{
- auth.signOut();
+}
+async function sendRequest(uid){
+ try{const id=friendId(me.uid,uid),ref=db.collection("friendRequests").doc(id),s=await ref.get();if(s.exists){alert("درخواست پہلے سے موجود ہے");return;}
+ await ref.set({senderId:me.uid,receiverId:uid,status:"pending",createdAt:firebase.firestore.FieldValue.serverTimestamp()});alert("Friend request بھیج دی گئی");}
+ catch(e){alert(e.message)}
+}
+async function loadRequests(){
+ const snap=await db.collection("friendRequests").where("receiverId","==",me.uid).where("status","==","pending").get();
+ const box=$("requests");box.innerHTML="<h2>موصول ہونے والی درخواستیں</h2>";
+ snap.forEach(doc=>{const d=doc.data(),el=document.createElement("div");el.className="member";el.textContent="ایک ممبر کی Friend Request";const b=document.createElement("button");b.textContent="Accept";b.onclick=()=>acceptRequest(doc.id,d);const r=document.createElement("button");r.textContent="Reject";r.className="secondary";r.onclick=()=>rejectRequest(doc.id);el.append(b,r);box.append(el)});
+}
+async function acceptRequest(id,d){
+ try{
+  const batch=db.batch(), req=db.collection("friendRequests").doc(id);
+  batch.update(req,{status:"accepted",acceptedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  batch.set(db.collection("friendships").doc(friendId(d.senderId,d.receiverId)),{senderId:d.senderId,receiverId:d.receiverId,members:[d.senderId,d.receiverId],acceptedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  await batch.commit();alert("Friend request قبول ہو گئی");await loadRequests();await loadMembers();
+ }catch(e){alert("قبول نہیں ہوئی: "+e.message)}
+}
+async function rejectRequest(id){try{await db.collection("friendRequests").doc(id).update({status:"rejected"});await loadRequests()}catch(e){alert(e.message)}}
+function chatKey(a,b){return [a,b].sort().join("_")}
+async function openChat(uid,title){
+ activeChat=chatKey(me.uid,uid);$("chatTitle").textContent="Chat: "+title;
+ if(messageUnsub)messageUnsub();
+ const ref=db.collection("chats").doc(activeChat);
+ await ref.set({participants:[me.uid,uid],updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+ messageUnsub=ref.collection("messages").orderBy("createdAt").onSnapshot(s=>{
+  $("messages").innerHTML="";s.forEach(doc=>{const d=doc.data(),p=document.createElement("div");p.className="status";p.textContent=(d.senderId===me.uid?"آپ: ":"ممبر: ")+d.text;$("messages").append(p)});
+ });
+}
+$("sendMessage").onclick=async()=>{
+ if(!activeChat){alert("پہلے کسی ممبر کی Message بٹن دبائیں");return}
+ const t=$("messageText").value.trim();if(!t)return;
+ try{await db.collection("chats").doc(activeChat).collection("messages").add({senderId:me.uid,text:t,createdAt:firebase.firestore.FieldValue.serverTimestamp()});$("messageText").value=""}catch(e){alert(e.message)}
+};
+async function loadChats(){
+ const snap=await db.collection("chats").where("participants","array-contains",me.uid).get();
+ const box=$("chats");box.innerHTML="<h2>Chats</h2>";
+ snap.forEach(doc=>{const other=doc.data().participants.find(x=>x!==me.uid);const b=document.createElement("button");b.className="secondary";b.textContent="Chat کھولیں";b.onclick=()=>openChat(other,"Member");box.append(b)});
+}
+async function startCall(uid){
+ try{
+  await db.collection("calls").add({callerId:me.uid,calleeId:uid,participants:[me.uid,uid],status:"requested",createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  alert("Call request بھیج دی گئی۔ اس prototype میں حقیقی audio/video calling ابھی مکمل فعال نہیں؛ اسے اگلے مرحلے میں WebRTC اور TURN server کے ساتھ مکمل کرنا ہوگا۔");
+ }catch(e){alert(e.message)}
+}
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
+ ["members","requests","chats"].forEach(x=>$(x).classList.toggle("hidden",x!==b.dataset.tab));
 });
 </script>
-</body>
-</html>
+</body></html>
