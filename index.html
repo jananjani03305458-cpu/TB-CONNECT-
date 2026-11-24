@@ -4,18 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>T&B Connect</title>
-
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-
 <style>
 *{box-sizing:border-box}
 body{margin:0;padding:20px;background:#100d20;color:white;font-family:Arial}
 .box{max-width:460px;margin:25px auto;background:#211b38;padding:24px;border-radius:18px}
 h1{text-align:center;color:#39e6dc}
 h2{text-align:center}
-input:not([type=checkbox]),select,textarea,button{
+input:not([type=checkbox]),select,button{
 width:100%;padding:13px;margin:8px 0;border:0;border-radius:9px;font-size:16px
 }
 button{background:#39e6dc;color:#111;font-weight:bold;cursor:pointer}
@@ -25,10 +23,9 @@ button{background:#39e6dc;color:#111;font-weight:bold;cursor:pointer}
 .option input{width:auto;margin-right:7px}
 #app{display:none}
 #preview{width:130px;height:130px;object-fit:cover;border-radius:50%;display:none;margin:12px auto}
-#message,#profileMessage{color:#39e6dc;text-align:center}
+#message,#profileMessage{color:#39e6dc;text-align:center;overflow-wrap:anywhere}
 </style>
 </head>
-
 <body>
 <div class="box">
 <h1>T&B Connect</h1>
@@ -38,34 +35,30 @@ button{background:#39e6dc;color:#111;font-weight:bold;cursor:pointer}
 <h2>Welcome</h2>
 <input id="email" type="email" placeholder="Email address">
 <input id="password" type="password" placeholder="Password">
-<button onclick="signup()">Create Account</button>
-<button onclick="loginUser()">Login</button>
+<button id="signupBtn">Create Account</button>
+<button id="loginBtn">Login</button>
 <p id="message"></p>
 </div>
 
 <div id="app">
 <h2>Create Your Profile</h2>
-
 <input id="name" placeholder="Your full name">
 <input id="age" type="number" placeholder="Your age (18+)">
-
 <select id="gender">
 <option value="">Select gender</option>
 <option>Male</option>
 <option>Female</option>
 <option>Other</option>
 </select>
-
 <input id="city" placeholder="Your city">
 
 <h3>Profile Picture</h3>
 <input id="photoFile" type="file" accept="image/*">
-<img id="preview" alt="Selected profile picture">
-<p class="small">Choose a picture from your device. Cloud saving will be added later.</p>
+<img id="preview" alt="Selected picture">
+<p class="small">Picture preview only. Cloud saving will be added later.</p>
 
 <h3>Choose About Yourself</h3>
 <p class="small">Select as many as you like.</p>
-
 <div class="options" id="aboutOptions">
 <label class="option"><input type="checkbox" value="Friendly">Friendly</label>
 <label class="option"><input type="checkbox" value="Simple">Simple</label>
@@ -79,131 +72,139 @@ button{background:#39e6dc;color:#111;font-weight:bold;cursor:pointer}
 <label class="option"><input type="checkbox" value="Food Lover">Food Lover</label>
 </div>
 
-<button onclick="saveProfile()">Save Profile</button>
+<button id="saveBtn" type="button">Save Profile</button>
 <p id="profileMessage"></p>
-<button onclick="logout()" style="background:#aaa">Logout</button>
+<button id="logoutBtn" style="background:#aaa">Logout</button>
 </div>
 </div>
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyDgRHZIDxKXOtP0Qm4lChk4EnLmo7yidBE",
-  authDomain: "tb-connect-38e83.firebaseapp.com",
-  projectId: "tb-connect-38e83",
-  storageBucket: "tb-connect-38e83.firebasestorage.app",
-  messagingSenderId: "917954139441",
-  appId: "1:917954139441:web:a2c7a7d4b1c2fa0c7e0c10"
+ apiKey: "AIzaSyDgRHZIDxKXOtP0Qm4lChk4EnLmo7yidBE",
+ authDomain: "tb-connect-38e83.firebaseapp.com",
+ projectId: "tb-connect-38e83",
+ storageBucket: "tb-connect-38e83.firebasestorage.app",
+ messagingSenderId: "917954139441",
+ appId: "1:917954139441:web:a2c7a7d4b1c2fa0c7e0c10"
 };
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-function message(id, text) {
-  document.getElementById(id).textContent = text;
+function show(id, text) {
+ document.getElementById(id).textContent = text;
 }
 
-function signup() {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+document.getElementById("signupBtn").addEventListener("click", async () => {
+ const email = document.getElementById("email").value.trim();
+ const password = document.getElementById("password").value;
+ try {
+  show("message","Creating account...");
+  await auth.createUserWithEmailAndPassword(email,password);
+ } catch(e) {
+  show("message",e.message);
+ }
+});
 
-  auth.createUserWithEmailAndPassword(email, password)
-    .catch(error => message("message", error.message));
-}
-
-function loginUser() {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-
-  auth.signInWithEmailAndPassword(email, password)
-    .catch(error => message("message", error.message));
-}
+document.getElementById("loginBtn").addEventListener("click", async () => {
+ const email = document.getElementById("email").value.trim();
+ const password = document.getElementById("password").value;
+ try {
+  show("message","Logging in...");
+  await auth.signInWithEmailAndPassword(email,password);
+ } catch(e) {
+  show("message",e.message);
+ }
+});
 
 document.getElementById("photoFile").addEventListener("change", function() {
-  const file = this.files[0];
-  const preview = document.getElementById("preview");
-
-  if (!file) return;
-
-  if (!file.type.startsWith("image/")) {
-    message("profileMessage", "Please choose an image file.");
-    this.value = "";
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    preview.src = event.target.result;
-    preview.style.display = "block";
-  };
-  reader.readAsDataURL(file);
+ const file = this.files[0];
+ if (!file) return;
+ if (!file.type.startsWith("image/")) {
+  show("profileMessage","Please choose an image file.");
+  this.value="";
+  return;
+ }
+ const reader = new FileReader();
+ reader.onload = e => {
+  document.getElementById("preview").src=e.target.result;
+  document.getElementById("preview").style.display="block";
+ };
+ reader.readAsDataURL(file);
 });
 
 auth.onAuthStateChanged(async user => {
-  document.getElementById("login").style.display = user ? "none" : "block";
-  document.getElementById("app").style.display = user ? "block" : "none";
+ document.getElementById("login").style.display=user?"none":"block";
+ document.getElementById("app").style.display=user?"block":"none";
+ if (!user) return;
 
-  if (!user) return;
-
-  try {
-    const doc = await db.collection("users").doc(user.uid).get();
-
-    if (doc.exists) {
-      const p = doc.data();
-
-      document.getElementById("name").value = p.name || "";
-      document.getElementById("age").value = p.age || "";
-      document.getElementById("gender").value = p.gender || "";
-      document.getElementById("city").value = p.city || "";
-
-      document.querySelectorAll('#aboutOptions input').forEach(item => {
-        item.checked = Array.isArray(p.about) && p.about.includes(item.value);
-      });
-
-      message("profileMessage", "Your profile is loaded.");
-    }
-  } catch (error) {
-    message("profileMessage", error.message);
+ try {
+  const doc=await db.collection("users").doc(user.uid).get();
+  if (doc.exists) {
+   const p=doc.data();
+   document.getElementById("name").value=p.name||"";
+   document.getElementById("age").value=p.age||"";
+   document.getElementById("gender").value=p.gender||"";
+   document.getElementById("city").value=p.city||"";
+   document.querySelectorAll("#aboutOptions input").forEach(item=>{
+    item.checked=Array.isArray(p.about)&&p.about.includes(item.value);
+   });
+   show("profileMessage","Your profile is loaded.");
   }
+ } catch(e) {
+  show("profileMessage","Loading error: "+e.message);
+ }
 });
 
-async function saveProfile() {
-  const user = auth.currentUser;
-  if (!user) return;
+document.getElementById("saveBtn").addEventListener("click", async () => {
+ const btn=document.getElementById("saveBtn");
+ const user=auth.currentUser;
 
-  const name = document.getElementById("name").value.trim();
-  const age = Number(document.getElementById("age").value);
-  const gender = document.getElementById("gender").value;
-  const city = document.getElementById("city").value.trim();
+ if (!user) {
+  show("profileMessage","Please login first.");
+  return;
+ }
 
-  const about = Array.from(
-    document.querySelectorAll('#aboutOptions input:checked')
-  ).map(item => item.value);
+ const name=document.getElementById("name").value.trim();
+ const age=Number(document.getElementById("age").value);
+ const gender=document.getElementById("gender").value;
+ const city=document.getElementById("city").value.trim();
+ const about=Array.from(
+  document.querySelectorAll("#aboutOptions input:checked")
+ ).map(item=>item.value);
 
-  if (!name || !Number.isInteger(age) || age < 18 || age > 120 || !gender || !city) {
-    message("profileMessage", "Enter your name, valid age (18+), gender and city.");
-    return;
-  }
+ if (!name || !Number.isInteger(age) || age<18 || age>120 || !gender || !city) {
+  show("profileMessage","Please enter name, valid age (18+), gender and city.");
+  return;
+ }
 
-  try {
-    await db.collection("users").doc(user.uid).set({
-      name: name,
-      age: age,
-      gender: gender,
-      city: city,
-      about: about,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, {merge:true});
+ try {
+  btn.disabled=true;
+  btn.textContent="Saving...";
+  show("profileMessage","Saving your profile...");
 
-    message("profileMessage", "Profile saved successfully!");
-  } catch (error) {
-    message("profileMessage", "Error: " + error.message);
-  }
-}
+  await db.collection("users").doc(user.uid).set({
+   name:name,
+   age:age,
+   gender:gender,
+   city:city,
+   about:about,
+   updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true});
 
-function logout() {
-  auth.signOut();
-}
+  show("profileMessage","Profile saved successfully!");
+ } catch(e) {
+  show("profileMessage","Save failed: "+e.message);
+ } finally {
+  btn.disabled=false;
+  btn.textContent="Save Profile";
+ }
+});
+
+document.getElementById("logoutBtn").addEventListener("click",()=>{
+ auth.signOut();
+});
 </script>
 </body>
 </html>
