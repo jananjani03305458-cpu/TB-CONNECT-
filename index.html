@@ -1,53 +1,45 @@
 <!doctype html>
-<html lang="ur">
+<html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>T&B Connect</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f3f5f9;color:#172033;font-family:Arial,sans-serif}
-header{background:#182b55;color:white;padding:16px;text-align:center;font-size:22px;font-weight:bold}
-main{max-width:760px;margin:18px auto;padding:0 12px}.panel{background:white;border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 12px #17203312}
-input,textarea,select,button{font:inherit;padding:11px;border:1px solid #ccd3df;border-radius:9px;width:100%;margin:5px 0}
-button{background:#244b91;color:white;border:0;font-weight:bold;cursor:pointer}.secondary{background:#e8edf6;color:#1d3157}.danger{background:#a83242}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hidden{display:none}.member{border:1px solid #e1e6ef;padding:12px;border-radius:12px;margin:9px 0}
-.member img{width:64px;height:64px;border-radius:50%;object-fit:cover;background:#e7ebf2}.memberrow{display:flex;gap:12px;align-items:center}.memberrow>div{flex:1}
-small,.muted{color:#667085}.status{padding:8px;background:#f0f4fb;border-radius:8px;margin:8px 0}
-label{display:block;margin-top:8px}h2{font-size:18px;margin:0 0 10px}.tabs{display:flex;gap:6px;flex-wrap:wrap}.tabs button{width:auto;flex:1}
-#log{white-space:pre-wrap;color:#a83242}
+:root{--bg:#100d20;--card:#211b38;--accent:#39e6dc;--text:#f4f2ff;--muted:#b8b2cc;--line:#40385b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui,Arial}
+header{padding:14px 18px;background:#17132b;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;border-bottom:1px solid var(--line);z-index:2}
+h1{font-size:20px;margin:0;color:var(--accent)}main{max-width:1000px;margin:20px auto;padding:0 14px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
+input,textarea,button{font:inherit;border-radius:9px;padding:11px;border:1px solid var(--line);width:100%;background:#15112a;color:var(--text);margin:5px 0}
+textarea{min-height:75px;resize:vertical}button{background:var(--accent);color:#081b20;font-weight:700;cursor:pointer;border:0}button.secondary{background:#393151;color:var(--text)}button.small{width:auto;padding:7px 10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hidden{display:none!important}.muted{color:var(--muted);font-size:13px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row input{flex:1;min-width:150px}.item{padding:12px;border:1px solid var(--line);border-radius:10px;margin:8px 0;overflow-wrap:anywhere}.item h3{margin:0 0 5px;font-size:16px}.item p{white-space:pre-wrap}.tabs{display:flex;gap:6px;flex-wrap:wrap}.tabs button{width:auto}.status{color:var(--accent);min-height:20px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}header{position:static}}
 </style>
 </head>
 <body>
-<header>T&B CONNECT</header>
+<header><h1>T&B Connect</h1><div class="row"><span id="who" class="muted"></span><button id="logout" class="small secondary hidden">Log out</button></div></header>
 <main>
+<div id="status" class="status"></div>
 <section id="auth" class="panel">
-<h2>اکاؤنٹ بنائیں یا لاگ اِن کریں</h2>
-<input id="email" type="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password (کم از کم 6 حروف)">
-<div class="grid"><button id="signup">نیا اکاؤنٹ</button><button id="login" class="secondary">لاگ اِن</button></div>
-<div id="log"></div>
+<h2>Welcome</h2><p class="muted">Create an account or sign in. Use a valid email address.</p>
+<div class="grid"><div><input id="email" type="email" placeholder="Email"><input id="password" type="password" placeholder="Password (6+ characters)"><button id="signup">Create account</button></div>
+<div><p>Already registered?</p><button id="login" class="secondary">Sign in</button></div></div>
+</section>
+<section id="profile" class="panel hidden"><h2>Your profile</h2>
+<input id="displayName" maxlength="60" placeholder="Display name">
+<textarea id="bio" maxlength="500" placeholder="Your bio / opinion (optional)"></textarea>
+<input id="photoUrl" type="url" placeholder="Profile image URL (optional)">
+<button id="saveProfile">Save profile</button>
+<p class="muted">Privacy: only name, bio and optional image URL are stored in this public-to-signed-in profile. Do not enter phone numbers, passwords or private details.</p>
 </section>
 <section id="app" class="hidden">
-<div class="panel">
-<div class="memberrow"><div><b id="welcome"></b><div class="muted" id="myemail"></div></div><button id="logout" class="secondary" style="width:auto">Logout</button></div>
-<div class="status">پرائیویٹ موڈ میں آپ کا نام، تصویر اور پروفائل دوسرے ممبرز کو نظر نہیں آئیں گے۔ دوست بننے کی درخواست قبول ہونے کے بعد پروفائل نظر آئے گا۔</div>
-<label><input id="privateMode" type="checkbox" style="width:auto"> میرا پروفائل Private رکھیں</label>
-<button id="savePrivacy">Privacy محفوظ کریں</button>
-</div>
-<div class="panel">
-<h2>اپنا پروفائل</h2>
-<input id="name" placeholder="نام">
-<input id="age" type="number" min="18" max="120" placeholder="عمر (صرف 18+)">
-<select id="gender"><option value="">Gender منتخب کریں</option><option>Male</option><option>Female</option><option>Other</option></select>
-<input id="city" placeholder="شہر">
-<input id="photoUrl" placeholder="تصویر کا URL (اختیاری)">
-<textarea id="about" placeholder="اپنے بارے میں"></textarea>
-<button id="saveProfile">پروفائل محفوظ کریں</button>
-</div>
-<div class="panel">
-<div class="tabs"><button data-tab="members">Members</button><button data-tab="requests" class="secondary">Requests</button><button data-tab="chats" class="secondary">Chats</button></div>
-<div id="members"></div><div id="requests" class="hidden"></div><div id="chats" class="hidden"></div>
-</div>
-<div class="panel"><h2>پیغام</h2><div id="chatTitle" class="muted">کسی ممبر کے ساتھ چیٹ کھولیں</div><div id="messages" style="max-height:220px;overflow:auto"></div><textarea id="messageText" placeholder="پیغام لکھیں"></textarea><button id="sendMessage">پیغام بھیجیں</button></div>
+<div class="panel"><div class="tabs">
+<button data-tab="feed">Feed</button><button data-tab="people" class="secondary">Find people</button><button data-tab="requests" class="secondary">Requests</button><button data-tab="friends" class="secondary">Friends / chats</button><button data-tab="admin" id="adminTab" class="secondary hidden">Admin</button>
+</div></div>
+<div id="feed" class="panel"><h2>Feed</h2><textarea id="postText" maxlength="3000" placeholder="What's on your mind?"></textarea><input id="postImage" type="url" placeholder="Image URL (optional)"><button id="publish">Publish post</button><div id="posts"></div></div>
+<div id="people" class="panel hidden"><h2>Find people</h2><div class="row"><input id="searchText" placeholder="Search display name"><button id="searchPeople" class="small">Search</button></div><div id="peopleResults"></div></div>
+<div id="requests" class="panel hidden"><h2>Friend requests</h2><div id="requestList"></div></div>
+<div id="friends" class="panel hidden"><h2>Friends</h2><div id="friendList"></div><div id="chatBox" class="hidden"><h3 id="chatTitle"></h3><div id="messages"></div><div class="row"><input id="messageText" maxlength="3000" placeholder="Write a message"><button id="sendMessage" class="small">Send</button></div></div></div>
+<div id="admin" class="panel hidden"><h2>Admin panel</h2><p class="muted">Admin-only view. Basic account list and reports.</p><div id="adminContent"></div></div>
 </section>
 </main>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -62,139 +54,43 @@ const firebaseConfig = {
   messagingSenderId: "917954139441",
   appId: "1:917954139441:web:a2c7a7d4b1c2fa0c7e0c10"
 };
+const ADMIN_UID = "5bde3RbawRUNUChI2dC3VTsu4ln1";
 firebase.initializeApp(firebaseConfig);
-const auth=firebase.auth(), db=firebase.firestore();
-const $=id=>document.getElementById(id);
-let me=null, activeChat=null, messageUnsub=null;
-const say=t=>{$("log").textContent=t};
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const profileFields=()=>({name:$("name").value.trim(),age:Number($("age").value),gender:$("gender").value,city:$("city").value.trim(),photoUrl:$("photoUrl").value.trim(),about:$("about").value.trim()});
-const friendId=(a,b)=>a+"_"+b;
-async function accepted(a,b){
- const x=await db.collection("friendships").doc(friendId(a,b)).get();
- const y= x.exists?x:await db.collection("friendships").doc(friendId(b,a)).get();
- return y.exists;
+const auth=firebase.auth(), db=firebase.firestore(), serverTime=firebase.firestore.FieldValue.serverTimestamp;
+let me=null, myProfile=null, activeChat=null, chatUnsub=null, feedUnsub=null;
+const $=id=>document.getElementById(id), esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function msg(t){$("status").textContent=t}
+function show(id,on){$(id).classList.toggle("hidden",!on)}
+function tab(name){["feed","people","requests","friends","admin"].forEach(x=>show(x,x===name));document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("secondary",b.dataset.tab!==name));}
+function isAdmin(){return me&&me.uid===ADMIN_UID}
+async function ensureProfile(){
+ const ref=db.collection("users").doc(me.uid), snap=await ref.get();
+ myProfile=snap.exists?snap.data():null;
+ $("displayName").value=myProfile?.displayName||"";
+ $("bio").value=myProfile?.bio||"";
+ $("photoUrl").value=myProfile?.photoUrl||"";
+ show("profile",true);
 }
-$("signup").onclick=async()=>{try{const c=await auth.createUserWithEmailAndPassword($("email").value,$("password").value);me=c.user;await initializeUser();}catch(e){say(e.message)}};
-$("login").onclick=async()=>{try{await auth.signInWithEmailAndPassword($("email").value,$("password").value)}catch(e){say(e.message)}};
+auth.onAuthStateChanged(async user=>{
+ me=user; show("auth",!user);show("logout",!!user);show("app",!!user);
+ $("who").textContent=user?user.email:"";
+ if(!user){show("profile",false);if(feedUnsub)feedUnsub();if(chatUnsub)chatUnsub();return}
+ try{await ensureProfile();$("adminTab").classList.toggle("hidden",!isAdmin());loadFeed();loadRequests();loadFriends();}catch(e){msg("Load error: "+e.message)}
+});
+$("signup").onclick=async()=>{try{await auth.createUserWithEmailAndPassword($("email").value.trim(),$("password").value);msg("Account created. Please save your profile.");}catch(e){msg(e.message)}};
+$("login").onclick=async()=>{try{await auth.signInWithEmailAndPassword($("email").value.trim(),$("password").value);msg("Signed in.");}catch(e){msg(e.message)}};
 $("logout").onclick=()=>auth.signOut();
-auth.onAuthStateChanged(async u=>{
- me=u;
- $("auth").classList.toggle("hidden",!!u);$("app").classList.toggle("hidden",!u);
- if(u){$("welcome").textContent="T&B Connect";$("myemail").textContent=u.email||"";try{await initializeUser();await loadMyProfile();await loadMembers();await loadRequests();await loadChats()}catch(e){say(e.message)}}
- else {if(messageUnsub)messageUnsub();activeChat=null;}
-});
-async function initializeUser(){
- const ref=db.collection("users").doc(me.uid), s=await ref.get();
- if(!s.exists){
-  await ref.set({privateMode:true,discoverable:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-  return;
- }
- const old=s.data()||{};
- // One-time migration from the earlier prototype, which kept profile fields in users/{uid}.
- if(old.name || old.age || old.photoUrl || old.about || old.city){
-  const legacy={name:old.name||"",age:Number(old.age)||18,gender:old.gender||"",city:old.city||"",photoUrl:old.photoUrl||"",about:old.about||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-  await db.collection("privateProfiles").doc(me.uid).set(legacy);
-  if(old.privateMode===false) await db.collection("publicProfiles").doc(me.uid).set(legacy);
- }
- // Replace, rather than merge, so legacy personal fields are removed from the directory document.
- await ref.set({privateMode:old.privateMode===false?false:true,discoverable:old.discoverable!==false,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-}
-async function loadMyProfile(){
- const [u,p]=await Promise.all([db.collection("users").doc(me.uid).get(),db.collection("privateProfiles").doc(me.uid).get()]);
- $("privateMode").checked=u.data()?.privateMode!==false;
- if(p.exists){const d=p.data();$("name").value=d.name||"";$("age").value=d.age||"";$("gender").value=d.gender||"";$("city").value=d.city||"";$("photoUrl").value=d.photoUrl||"";$("about").value=d.about||"";}
-}
-$("savePrivacy").onclick=async()=>{
- try{
-  const privateMode=$("privateMode").checked;
-  const userRef=db.collection("users").doc(me.uid), pubRef=db.collection("publicProfiles").doc(me.uid);
-  await userRef.set({privateMode,discoverable:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-  if(privateMode) await pubRef.delete(); else {
-   const p=await db.collection("privateProfiles").doc(me.uid).get();
-   if(p.exists) await pubRef.set({...p.data(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  }
-  alert("Privacy محفوظ ہو گئی");
-  await loadMembers();
- }catch(e){alert("محفوظ نہیں ہوا: "+e.message)}
-};
-$("saveProfile").onclick=async()=>{
- try{
-  const d=profileFields();
-  if(!d.name||!Number.isInteger(d.age)||d.age<18||d.age>120){alert("نام درج کریں اور عمر 18 سے 120 کے درمیان رکھیں۔");return;}
-  const privateMode=$("privateMode").checked;
-  await db.collection("privateProfiles").doc(me.uid).set({...d,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  await db.collection("users").doc(me.uid).set({privateMode,discoverable:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-  if(privateMode) await db.collection("publicProfiles").doc(me.uid).delete();
-  else await db.collection("publicProfiles").doc(me.uid).set({...d,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  alert("Profile محفوظ ہو گیا");await loadMembers();
- }catch(e){alert("پروفائل محفوظ نہیں ہوا: "+e.message)}
-};
-async function loadMembers(){
- const snap=await db.collection("users").where("discoverable","==",true).get();
- const box=$("members");box.innerHTML="<h2>Members</h2>";
- for(const doc of snap.docs){
-  if(doc.id===me.uid)continue;
-  const uid=doc.id, meta=doc.data(), isFriend=await accepted(me.uid,uid);
-  let d=null,privateMode=meta.privateMode!==false;
-  if(!privateMode){const p=await db.collection("publicProfiles").doc(uid).get();if(p.exists)d=p.data();}
-  else if(isFriend){const p=await db.collection("privateProfiles").doc(uid).get();if(p.exists)d=p.data();}
-  const title=d?.name||"Private Member", photo=d?.photoUrl||"";
-  const card=document.createElement("div");card.className="member";
-  card.innerHTML=`<div class="memberrow"><img src="${esc(photo||"")}" onerror="this.style.visibility='hidden'" alt=""><div><b>${esc(title)}</b><div class="muted">${d?esc([d.age,d.city].filter(Boolean).join(" • ")):"پروفائل دوست بننے کے بعد نظر آئے گا"}</div></div></div><div class="grid"><button data-act="request">Friend Request</button><button data-act="chat" class="secondary">Message</button><button data-act="call" class="secondary">Call</button></div>`;
-  card.querySelector('[data-act="request"]').onclick=()=>sendRequest(uid);
-  card.querySelector('[data-act="chat"]').onclick=()=>openChat(uid,title);
-  card.querySelector('[data-act="call"]').onclick=()=>startCall(uid);
-  box.appendChild(card);
- }
-}
-async function sendRequest(uid){
- try{const id=friendId(me.uid,uid),ref=db.collection("friendRequests").doc(id),s=await ref.get();if(s.exists){alert("درخواست پہلے سے موجود ہے");return;}
- await ref.set({senderId:me.uid,receiverId:uid,status:"pending",createdAt:firebase.firestore.FieldValue.serverTimestamp()});alert("Friend request بھیج دی گئی");}
- catch(e){alert(e.message)}
-}
-async function loadRequests(){
- const snap=await db.collection("friendRequests").where("receiverId","==",me.uid).where("status","==","pending").get();
- const box=$("requests");box.innerHTML="<h2>موصول ہونے والی درخواستیں</h2>";
- snap.forEach(doc=>{const d=doc.data(),el=document.createElement("div");el.className="member";el.textContent="ایک ممبر کی Friend Request";const b=document.createElement("button");b.textContent="Accept";b.onclick=()=>acceptRequest(doc.id,d);const r=document.createElement("button");r.textContent="Reject";r.className="secondary";r.onclick=()=>rejectRequest(doc.id);el.append(b,r);box.append(el)});
-}
-async function acceptRequest(id,d){
- try{
-  const batch=db.batch(), req=db.collection("friendRequests").doc(id);
-  batch.update(req,{status:"accepted",acceptedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  batch.set(db.collection("friendships").doc(friendId(d.senderId,d.receiverId)),{senderId:d.senderId,receiverId:d.receiverId,members:[d.senderId,d.receiverId],acceptedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  await batch.commit();alert("Friend request قبول ہو گئی");await loadRequests();await loadMembers();
- }catch(e){alert("قبول نہیں ہوئی: "+e.message)}
-}
-async function rejectRequest(id){try{await db.collection("friendRequests").doc(id).update({status:"rejected"});await loadRequests()}catch(e){alert(e.message)}}
-function chatKey(a,b){return [a,b].sort().join("_")}
-async function openChat(uid,title){
- activeChat=chatKey(me.uid,uid);$("chatTitle").textContent="Chat: "+title;
- if(messageUnsub)messageUnsub();
- const ref=db.collection("chats").doc(activeChat);
- await ref.set({participants:[me.uid,uid],updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
- messageUnsub=ref.collection("messages").orderBy("createdAt").onSnapshot(s=>{
-  $("messages").innerHTML="";s.forEach(doc=>{const d=doc.data(),p=document.createElement("div");p.className="status";p.textContent=(d.senderId===me.uid?"آپ: ":"ممبر: ")+d.text;$("messages").append(p)});
- });
-}
-$("sendMessage").onclick=async()=>{
- if(!activeChat){alert("پہلے کسی ممبر کی Message بٹن دبائیں");return}
- const t=$("messageText").value.trim();if(!t)return;
- try{await db.collection("chats").doc(activeChat).collection("messages").add({senderId:me.uid,text:t,createdAt:firebase.firestore.FieldValue.serverTimestamp()});$("messageText").value=""}catch(e){alert(e.message)}
-};
-async function loadChats(){
- const snap=await db.collection("chats").where("participants","array-contains",me.uid).get();
- const box=$("chats");box.innerHTML="<h2>Chats</h2>";
- snap.forEach(doc=>{const other=doc.data().participants.find(x=>x!==me.uid);const b=document.createElement("button");b.className="secondary";b.textContent="Chat کھولیں";b.onclick=()=>openChat(other,"Member");box.append(b)});
-}
-async function startCall(uid){
- try{
-  await db.collection("calls").add({callerId:me.uid,calleeId:uid,participants:[me.uid,uid],status:"requested",createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-  alert("Call request بھیج دی گئی۔ اس prototype میں حقیقی audio/video calling ابھی مکمل فعال نہیں؛ اسے اگلے مرحلے میں WebRTC اور TURN server کے ساتھ مکمل کرنا ہوگا۔");
- }catch(e){alert(e.message)}
-}
-document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
- ["members","requests","chats"].forEach(x=>$(x).classList.toggle("hidden",x!==b.dataset.tab));
-});
+$("saveProfile").onclick=async()=>{if(!me)return;const name=$("displayName").value.trim();if(!name)return msg("Display name is required.");const photo=$("photoUrl").value.trim();if(photo&&!/^https?:\/\//i.test(photo))return msg("Image URL must start with http:// or https://");try{await db.collection("users").doc(me.uid).set({displayName:name,bio:$("bio").value.trim(),photoUrl:photo,updatedAt:serverTime()},{merge:true});myProfile={displayName:name,bio:$("bio").value.trim(),photoUrl:photo};msg("Profile saved.");}catch(e){msg(e.message)}};
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>tab(b.dataset.tab));
+async function loadFeed(){if(feedUnsub)feedUnsub();feedUnsub=db.collection("posts").orderBy("createdAt","desc").limit(50).onSnapshot(s=>{const out=$("posts");out.innerHTML="";s.forEach(d=>{const p=d.data();const el=document.createElement("div");el.className="item";el.innerHTML=`<h3>${esc(p.authorName||"Member")}</h3><p>${esc(p.text||"")}</p>${p.imageUrl?`<p><a target="_blank" rel="noopener" href="${esc(p.imageUrl)}">Open attached image</a></p>`:""}<div class="row"><button class="small secondary like">Like (${p.likes||0})</button><button class="small secondary comment">Comment</button><button class="small secondary report">Report</button></div><div class="comments"></div>`;el.querySelector(".like").onclick=async()=>{try{await d.ref.update({likes:firebase.firestore.FieldValue.increment(1)})}catch(e){msg(e.message)}};el.querySelector(".comment").onclick=async()=>{const text=prompt("Write comment (max 1000 characters):");if(!text||text.length>1000)return;try{await d.ref.collection("comments").add({authorId:me.uid,authorName:myProfile?.displayName||"Member",text,createdAt:serverTime()})}catch(e){msg(e.message)}};el.querySelector(".report").onclick=async()=>{const reason=prompt("Report reason:");if(!reason)return;try{await db.collection("reports").add({reporterId:me.uid,postId:d.id,reason:reason.slice(0,500),createdAt:serverTime()});msg("Report sent.")}catch(e){msg(e.message)}};d.ref.collection("comments").orderBy("createdAt","asc").limit(20).get().then(cs=>cs.forEach(c=>{const q=c.data();const p=document.createElement("p");p.className="muted";p.textContent=(q.authorName||"Member")+": "+q.text;el.querySelector(".comments").append(p)}));out.append(el)})},e=>msg("Feed: "+e.message))}
+$("publish").onclick=async()=>{const text=$("postText").value.trim(),imageUrl=$("postImage").value.trim();if(!text&&!imageUrl)return msg("Write something or add an image URL.");if(imageUrl&&!/^https?:\/\//i.test(imageUrl))return msg("Image URL must start with http:// or https://");try{await db.collection("posts").add({authorId:me.uid,authorName:myProfile?.displayName||"Member",text,imageUrl,likes:0,createdAt:serverTime()});$("postText").value="";$("postImage").value="";msg("Post published.")}catch(e){msg(e.message)}};
+$("searchPeople").onclick=async()=>{const q=$("searchText").value.trim().toLowerCase();if(q.length<2)return msg("Type at least 2 letters.");try{const s=await db.collection("users").orderBy("displayName").startAt(q).endAt(q+"\uf8ff").limit(20).get();const out=$("peopleResults");out.innerHTML="";s.forEach(d=>{if(d.id===me.uid)return;const u=d.data(),el=document.createElement("div");el.className="item";el.innerHTML=`<b>${esc(u.displayName||"Member")}</b><p>${esc(u.bio||"")}</p><button class="small">Send friend request</button>`;el.querySelector("button").onclick=()=>sendRequest(d.id,u.displayName);out.append(el)});if(!out.children.length)out.textContent="No matching members."}catch(e){msg("Search: "+e.message)}};
+async function sendRequest(to,name){try{const existing=await db.collection("friendRequests").where("senderId","==",me.uid).where("receiverId","==",to).get();if(!existing.empty)return msg("Request already sent.");await db.collection("friendRequests").add({senderId:me.uid,receiverId:to,senderName:myProfile?.displayName||"Member",status:"pending",createdAt:serverTime()});msg("Friend request sent to "+name+".")}catch(e){msg(e.message)}}
+async function loadRequests(){const out=$("requestList");out.innerHTML="";try{const s=await db.collection("friendRequests").where("receiverId","==",me.uid).where("status","==","pending").get();s.forEach(d=>{const r=d.data(),el=document.createElement("div");el.className="item";el.innerHTML=`<b>${esc(r.senderName||"Member")}</b> wants to connect. <button class="small">Accept</button>`;el.querySelector("button").onclick=async()=>{try{await d.ref.update({status:"accepted"});msg("Request accepted.");loadRequests();loadFriends()}catch(e){msg(e.message)}};out.append(el)});if(!out.children.length)out.textContent="No pending requests."}catch(e){msg(e.message)}}
+async function loadFriends(){const out=$("friendList");out.innerHTML="";try{const a=await db.collection("friendRequests").where("status","==","accepted").where("senderId","==",me.uid).get();const b=await db.collection("friendRequests").where("status","==","accepted").where("receiverId","==",me.uid).get();const all=[...a.docs,...b.docs];const seen=new Set();for(const d of all){const r=d.data(),uid=r.senderId===me.uid?r.receiverId:r.senderId;if(seen.has(uid))continue;seen.add(uid);const u=await db.collection("users").doc(uid).get(),name=u.data()?.displayName||"Member";const el=document.createElement("div");el.className="item";el.innerHTML=`<b>${esc(name)}</b> <button class="small">Open chat</button>`;el.querySelector("button").onclick=()=>openChat(uid,name);out.append(el)}if(!out.children.length)out.textContent="Accepted friends will appear here."}catch(e){msg(e.message)}}
+function chatId(a,b){return [a,b].sort().join("_")}
+async function openChat(uid,name){activeChat=chatId(me.uid,uid);$("chatTitle").textContent="Chat with "+name;show("chatBox",true);if(chatUnsub)chatUnsub();const ref=db.collection("chats").doc(activeChat);try{await ref.set({participants:[me.uid,uid],updatedAt:serverTime()},{merge:true});chatUnsub=ref.collection("messages").orderBy("createdAt","asc").limit(100).onSnapshot(s=>{const out=$("messages");out.innerHTML="";s.forEach(d=>{const m=d.data(),p=document.createElement("div");p.className="item";p.textContent=(m.senderId===me.uid?"You":"Friend")+": "+m.text;out.append(p)});out.scrollTop=out.scrollHeight},e=>msg(e.message))}catch(e){msg("Chat: "+e.message)}}
+$("sendMessage").onclick=async()=>{const text=$("messageText").value.trim();if(!text||!activeChat)return;try{await db.collection("chats").doc(activeChat).collection("messages").add({senderId:me.uid,text,createdAt:serverTime()});$("messageText").value=""}catch(e){msg(e.message)}};
+$("adminTab").onclick=async()=>{tab("admin");const out=$("adminContent");out.textContent="Loading…";try{const [users,reports]=await Promise.all([db.collection("users").limit(100).get(),db.collection("reports").limit(100).get()]);out.innerHTML=`<h3>Members (${users.size} shown)</h3>`;users.forEach(d=>{const p=document.createElement("p");p.textContent=(d.data().displayName||"Member")+" — "+d.id;out.append(p)});out.innerHTML+="<h3>Reports</h3>";reports.forEach(d=>{const p=document.createElement("p");p.textContent=JSON.stringify(d.data());out.append(p)})}catch(e){out.textContent=e.message}};
 </script>
 </body></html>
